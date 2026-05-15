@@ -1,8 +1,13 @@
 use std::io::{self, Write};
+use colored::*;
+
+const SYS_COLOR: Color = Color::TrueColor { r: 255, g: 255, b: 0 };
+const AUTOR_COLOR: Color = Color::TrueColor {r: 255, g: 165, b: 0};
 
 fn main() {
+println!("{}", "Created by: @ProtasMV".color(AUTOR_COLOR).bold());
     loop { 
-        println!("1)конвертация с (°C) в (Фарангейты), 2)конвертация с (Фарангейтов) в (°С)");
+        println!("{}", "1)Convert (°C) to Fahrenheit, 2)Convert Fahrenheit to (°C)".color(SYS_COLOR));
         let user_answer = input();
         
         match user_answer.trim() {
@@ -19,7 +24,7 @@ fn main() {
                 if !user_continue() {break}                              
             }
             _ => {
-                println!("Неверный запрос, повторите попытку");
+                println!("Invalid input, please try again");
                 continue;
             }
         }
@@ -30,7 +35,8 @@ fn conversion(signs: (&str, char, &str), action: bool) {
     let (sign1, sign2, main_sign) = signs;
 
     println!();
-    print!("Введите температуру в ({main_sign}): ");
+    let temp = format!("Enter temperature in ({main_sign}): ");
+    print!("{}", temp.color(SYS_COLOR));
     flush();
 
     let user_data = input();
@@ -50,7 +56,7 @@ fn input() -> String {
     let mut data = String::new();
     match io::stdin().read_line(&mut data) {
         Ok(_) => {},
-        Err(er) => println!("Произошла ошибка! {er}")
+        Err(er) => println!("An error occurred! {er}")
     }
     data
 }
@@ -58,40 +64,38 @@ fn input() -> String {
 fn flush() {
     match io::stdout().flush() {
         Ok(()) => {},
-        Err(er) => {println!("Произошла ошибка! {er}")}
+        Err(er) => {println!("An error occurred! {er}")}
     }
 }
 
-fn parse_f32(data: String, main_sign: &str) -> f32 {
-    let data: f32 = match data.trim().parse() {
-        Ok(data) => {data},
-        Err(er) => {
-            loop {
+fn parse_f32(mut data: String, main_sign: &str) -> f32 {
+    loop {
+        match data.trim().parse() {
+            Ok(data) => {return data},
+            Err(er) => {
                 println!();
-                println!("Произошла ошибка! {er}, попробуйте ещё раз");
-                print!("Введите температуру в ({main_sign}): ");
+                println!("An error occurred! {er}, please try again");
+                let temp = format!("Enter temperature in ({main_sign}): ");
+                print!("{}", temp.color(SYS_COLOR));
                 flush();
-
-                let data = input();
-                let data = parse_f32(data, main_sign);
-                break data;
-            }
-        },
-    };
-    data
+                
+                data = input();
+            },
+        };
+    }
 }
 
 fn user_continue() -> bool{
     loop {
         println!();
-        print!("Прододжить? 1)Да, 2)Нет: ");
+        print!("{}", "Continue? 1)Yes, 2)No: ".color(SYS_COLOR));
         flush();
 
         let user_input = input();
         match user_input.trim().to_lowercase().as_str() {
-            "1"|"да"|"y" => {break true},
-            "2"|"нет"|"n" => {break false},
-            _=> {println!("Неверный запрос, повторите попытку"); continue}
+            "1"|"yes"|"y" => {break true},
+            "2"|"no"|"n" => {break false},
+            _=> {println!("Invalid input, please try again"); continue}
         }
     }
 }
